@@ -12,10 +12,11 @@ router.register("student", StudentViewSet, basename ="student")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("",views.home),
+    path("",views.index),
+    path("update_page/", views.update_page),
     path("update/",views.update),
-    path("delete_student/<int:id>",views.delete_student),
-    path("add/",views.add),
+    path("delete_student/",views.delete_student),
     path("add_student/", views.add_student),
-    path("api/", include(router.urls))
+    path("search/", views.search),
+    path("api/", include(router.urls)),
 ]

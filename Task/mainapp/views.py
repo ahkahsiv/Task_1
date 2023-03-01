@@ -1,37 +1,42 @@
 from django.shortcuts import render
 from . models import Student, School
+from django.db.models import Q
 from .serializers import SchoolSerializer, StudentSerializer
 from rest_framework.response import Response
 from rest_framework import viewsets
 
 
 # for normal Crud operations
-def home(request):
+def index(request):
     school_data = School.objects.all()
     student_data = Student.objects.all()
-    return render(request, "home.html",{'student_data':student_data, 'school_data':school_data})
+    return render(request, "index.html",{'student_data':student_data, 'school_data':school_data})
+
+def update_page(request):
+    id = request.GET['id']
+    data = Student.objects.get( id = id )
+    school_data = School.objects.all()
+    return render (request, "update_student.html",{'data':data,'school_data':school_data})
 
 def update(request):
-    id= request.POST['id']
-    student_obj = Student.objects.get(id =id)
+    student_obj = Student()
+    student_obj.id = request.POST['id']
     student_obj.student_name = request.POST['student_name']
-    school_name = request.POST['school_name']
-    student_obj.school = School.objects.get( id = school_name)
     student_obj.enrollment = request.POST['enrollment']
+    school = request.POST['school']
+    student_obj.school = School.objects.get( id = school)
     student_obj.save()
     school_data = School.objects.all()
     student_data = Student.objects.all()
-    return render(request, "home.html",{'student_data':student_data, 'school_data':school_data})
+    return render(request, "index.html",{'student_data':student_data, 'school_data':school_data})
 
-def add(request):
-    school_data =School.objects.all()
-    return render(request, 'add_student.html',{'school_data':school_data})
 
-def delete_student(request, id):
+def delete_student(request):
+    id = request.GET['id']
     Student.objects.get(id =id ).delete()
     school_data = School.objects.all()
     student_data = Student.objects.all()
-    return render(request, "home.html",{'student_data':student_data, 'school_data':school_data})
+    return render(request, "index.html",{'student_data':student_data, 'school_data':school_data})
 
 def add_student(request):
     student_name = request.POST['student_name']
@@ -45,7 +50,13 @@ def add_student(request):
     )
     school_data = School.objects.all()
     student_data = Student.objects.all()
-    return render(request, "home.html",{'student_data':student_data, 'school_data':school_data})
+    return render(request, "index.html",{'student_data':student_data, 'school_data':school_data})
+
+def search(request):
+    search=request.POST['search']
+    student_data= Student.objects.filter(Q(student_name=search) | Q(enrollment=search) | Q(school=search))
+    return render(request,'index.html',{'student_data':student_data})
+
 
 
 # For making API's
